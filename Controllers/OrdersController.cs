@@ -5,6 +5,7 @@ using Lab08_JeanLazarinos.Models;
 using Lab08_JeanLazarinos.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; // <-- MUY IMPORTANTE AÑADIR ESTE USING
+using Lab08_JeanLazarinos.Services;
 
 namespace Lab08_JeanLazarinos.Controllers
 {
@@ -16,11 +17,13 @@ namespace Lab08_JeanLazarinos.Controllers
         // Inyectamos el DbContext directamente aquí para consultas complejas.
         // Es una práctica aceptable cuando se necesita el poder de IQueryable.
         private readonly StoreLdbContext _context;
+        private readonly IExcelService _excelService;
 
-        public OrdersController(IUnitOfWork unitOfWork, StoreLdbContext context)
+        public OrdersController(IUnitOfWork unitOfWork, StoreLdbContext context, IExcelService excelService)
         {
             _unitOfWork = unitOfWork;
             _context = context;
+            _excelService = excelService;
         }
 
         // GET: api/Orders
@@ -187,5 +190,44 @@ namespace Lab08_JeanLazarinos.Controllers
 
             return Ok(orders);
         }
+        
+        // GET: api/Orders/5/con-detalles
+        [HttpGet("{id}/con-detalles")]
+        public async Task<ActionResult<PedidoConDetallesDto>> GetPedidoConDetalles(int id)
+        {
+            var pedidoConDetalles = await _unitOfWork.OrderRepository.GetPedidoConDetallesAsync(id);
+    
+            if (pedidoConDetalles == null)
+            {
+                return NotFound($"No se encontró el pedido con ID {id}.");
+            }
+
+            return Ok(pedidoConDetalles);
+        }
+        
+        // --- NUEVO ENDPOINT REPORTE 2 ---
+        [HttpGet("{id}/export")]
+        [ProducesResponseType(typeof(FileContentResult), 200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> ExportDetallePedido(int id)
+        {
+            // 1. LÓGICA DE QUERY 
+            // Asumo que tienes un método que devuelve este DTO
+            var pedidoData = await _unitOfWork.OrderRepository.GetPedidoConDetallesAsync(id);
+
+            if (pedidoData == null)
+            {
+                return NotFound("No se encontró el pedido.");
+            }
+
+            // 2. LÓGICA DE EXCEL 
+            var fileBytes = _excelService.GeneratePedidoDetalladoReport(pedidoData);
+
+            // 3. Devolver el archivo
+            string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            string fileName = $"DetallePedido_{id}_{DateTime.Now:yyyyMMdd}.xlsx";
+
+            return File(fileBytes, mimeType, fileName);
+        }
     }
-}
+    }

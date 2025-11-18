@@ -2,8 +2,11 @@
 using Lab08_JeanLazarinos.Data;
 using Lab08_JeanLazarinos.Models;
 using Lab08_JeanLazarinos.Repositories.Interfaces;
+using Lab08_JeanLazarinos.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Lab08_JeanLazarinos.Services;
+
 
 
 namespace Lab08_JeanLazarinos.Controllers;
@@ -14,11 +17,13 @@ public class ClientesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly StoreLdbContext _context;
+    private readonly IExcelService _excelService;
 
-    public ClientesController(IUnitOfWork unitOfWork, StoreLdbContext context)
+    public ClientesController(IUnitOfWork unitOfWork, StoreLdbContext context,IExcelService excelService)
     {
         _unitOfWork = unitOfWork;   
         _context = context;
+        _excelService = excelService;
     }
 
     // GET: api/Clientes
@@ -146,5 +151,87 @@ public class ClientesController : ControllerBase
             .ToListAsync();
 
         return Ok(productos);
+    }
+    
+    // GET: api/Clientes/5/con-pedidos
+    [HttpGet("{id}/con-pedidos")]
+    public async Task<ActionResult<ClienteConPedidosDto>> GetClienteConPedidos(int id)
+    {
+        var clienteConPedidos = await _unitOfWork.ClientRepository.GetClienteConPedidosAsync(id);
+    
+        if (clienteConPedidos == null)
+        {
+            return NotFound($"No se encontró el cliente con ID {id}.");
+        }
+
+        return Ok(clienteConPedidos);
+    }
+    
+    // GET: api/Clientes/con-total-productos
+    [HttpGet("con-total-productos")]
+    public async Task<ActionResult<IEnumerable<ClienteConTotalProductosDto>>> GetClientesConTotalProductos()
+    {
+        var clientesConTotales = await _unitOfWork.ClientRepository.GetClientesConTotalProductosAsync();
+    
+        if (!clientesConTotales.Any())
+        {
+            return NotFound("No se encontraron clientes.");
+        }
+
+        return Ok(clientesConTotales);
+    }
+    
+    // GET: api/Clientes/ventas-por-cliente
+    [HttpGet("ventas-por-cliente")]
+    public async Task<ActionResult<IEnumerable<VentasPorClienteDto>>> GetVentasPorCliente(
+        [FromQuery] DateTime? fechaInicio = null,
+        [FromQuery] DateTime? fechaFin = null,
+        [FromQuery] decimal? montoMinimo = null)
+    {
+        var ventasPorCliente = await _unitOfWork.ClientRepository
+            .GetVentasPorClienteAsync(fechaInicio, fechaFin, montoMinimo);
+    
+        if (!ventasPorCliente.Any())
+        {
+            return NotFound("No se encontraron ventas con los filtros especificados.");
+        }
+
+        return Ok(ventasPorCliente);
+    }
+
+// GET: api/Clientes/top-clientes/5
+    [HttpGet("top-clientes/{top}")]
+    public async Task<ActionResult<IEnumerable<VentasPorClienteDto>>> GetTopClientes(int top = 10)
+    {
+        var ventasPorCliente = await _unitOfWork.ClientRepository
+            .GetVentasPorClienteAsync();
+    
+        var topClientes = ventasPorCliente.Take(top);
+    
+        if (!topClientes.Any())
+        {
+            return NotFound("No se encontraron clientes.");
+        }
+
+        return Ok(topClientes);
+    }
+    
+    // --- NUEVO ENDPOINT REPORTE 1 ---
+    [HttpGet("export/ventas")]
+    [ProducesResponseType(typeof(FileContentResult), 200)]
+    public async Task<IActionResult> ExportVentasPorCliente()
+    {
+        // 1. LÓGICA DE QUERY 
+        // Asumo que tienes un método en tu repositorio que devuelve este DTO
+        var ventasData = await _unitOfWork.ClientRepository.GetVentasPorClienteAsync(); 
+
+        // 2. LÓGICA DE EXCEL 
+        var fileBytes = _excelService.GenerateVentasPorClienteReport(ventasData);
+
+        // 3. Devolver el archivo
+        string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        string fileName = $"ReporteVentasPorCliente_{DateTime.Now:yyyyMMdd}.xlsx";
+
+        return File(fileBytes, mimeType, fileName);
     }
 }

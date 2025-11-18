@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Lab08_JeanLazarinos.Data;
 using Lab08_JeanLazarinos.Repositories;
 using Lab08_JeanLazarinos.Repositories.Interfaces;
+using Lab08_JeanLazarinos.closedXml;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,20 @@ builder.Services.AddSwaggerGen();
 
 // Lee la cadena de conexión desde 'appsettings.json'.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+
+Console.WriteLine("Iniciando la creación de la TABLA Excel...");
+
+// 1. Crear una instancia de tu clase
+var generador = new FirstExample();
+
+// 2. Ejecutar el método que SÍ crea la tabla
+generador.MyFourthExample(); 
+
+Console.WriteLine("¡Archivo Excel con TABLA y ESTILOS!");
+Console.WriteLine("Revisa la ruta: C:\\MET\\semana08\\Lab08-JeanLazarinos\\example.xlsx");
+
+builder.Services.AddScoped<Lab08_JeanLazarinos.Services.IExcelService, Lab08_JeanLazarinos.Services.ExcelService>();
 
 // Registra tu DbContext (StoreLdbContext) en el contenedor de servicios
 // y le dice que debe usar PostgreSQL con la cadena de conexión obtenida.

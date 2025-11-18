@@ -130,3 +130,12 @@ C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\obj\Debug\net9.0\refint\
 C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\obj\Debug\net9.0\Lab08-JeanLazarinos.pdb
 C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\obj\Debug\net9.0\Lab08-JeanLazarinos.genruntimeconfig.cache
 C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\obj\Debug\net9.0\ref\Lab08-JeanLazarinos.dll
+C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\obj\Debug\net9.0\Lab08-JeanLazarinos.sourcelink.json
+C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\bin\Debug\net9.0\ClosedXML.dll
+C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\bin\Debug\net9.0\ClosedXML.Parser.dll
+C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\bin\Debug\net9.0\DocumentFormat.OpenXml.dll
+C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\bin\Debug\net9.0\DocumentFormat.OpenXml.Framework.dll
+C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\bin\Debug\net9.0\ExcelNumberFormat.dll
+C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\bin\Debug\net9.0\RBush.dll
+C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\bin\Debug\net9.0\SixLabors.Fonts.dll
+C:\MET\semana08\Lab08-JeanLazarinos\Lab08-JeanLazarinos\bin\Debug\net9.0\System.IO.Packaging.dll

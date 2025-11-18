@@ -11,18 +11,22 @@ public class UnitOfWork : IUnitOfWork
     
     // Usamos 'lazy loading' para instanciar los repositorios solo cuando se necesiten
     public IRepository<Product> ProductRepository { get; private set; }
-    public IRepository<Client> ClientRepository { get; private set; }
-    public IRepository<Order> OrderRepository { get; private set; }
+    private IClientRepository? _clientRepository;
+    private IOrderRepository? _orderRepository;
     public IRepository<Orderdetail> OrderDetailRepository { get; private set; }
 
     public UnitOfWork(StoreLdbContext context)
     {
         _context = context;
         ProductRepository = new Repository<Product>(_context);
-        ClientRepository = new Repository<Client>(_context);
-        OrderRepository = new Repository<Order>(_context);
+        
         OrderDetailRepository = new Repository<Orderdetail>(_context);
     }
+    public IClientRepository ClientRepository => 
+        _clientRepository ??= new ClientRepository(_context);
+    
+    public IOrderRepository OrderRepository => 
+        _orderRepository ??= new OrderRepository(_context);
 
     public async Task<int> CompleteAsync()
     {
